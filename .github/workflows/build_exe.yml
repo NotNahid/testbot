@@ -1,0 +1,40 @@
+name: Build Chatbot EXE
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Dependencies
+      run: |
+        pip install pyinstaller nltk scikit-learn numpy
+        # If you have a requirements.txt, you can use: pip install -r requirements.txt
+
+    - name: Download NLTK Data (Optional but recommended for build)
+      run: |
+        python -m nltk.downloader punkt wordnet omw-1.4
+
+    - name: Build with PyInstaller
+      # --onefile makes it a single .exe
+      # --noconsole hides the black command window
+      run: |
+        pyinstaller --noconsole --onefile gui_app.py
+
+    - name: Upload EXE Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Chatbot-Windows-App
+        path: dist/gui_app.exe
